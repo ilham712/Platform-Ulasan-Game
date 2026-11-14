@@ -12,37 +12,43 @@ if (isset($_SESSION['user_id'])) {
 
 $error    = '';
 $username = '';
+$email    = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username   = trim($_POST['username'] ?? '');
+    $email      = trim($_POST['email'] ?? '');
     $password   = $_POST['password'] ?? '';
     $konfirmasi = $_POST['konfirmasi'] ?? '';
 
-    if ($username === '' || $password === '' || $konfirmasi === '') {
+    if ($username === '' || $email === '' || $password === '' || $konfirmasi === '') {
         $error = 'Semua kolom harus diisi.';
     } elseif (!preg_match('/^[A-Za-z0-9_]{3,30}$/', $username)) {
         $error = 'Username 3-30 karakter, hanya boleh huruf, angka, dan underscore.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 100) {
+        $error = 'Format email tidak valid.';
     } elseif (strlen($password) < 6) {
         $error = 'Password minimal 6 karakter.';
     } elseif ($password !== $konfirmasi) {
         $error = 'Konfirmasi password tidak sama dengan password.';
     } else {
-        // Cek apakah username sudah dipakai
-        $stmt = $koneksi->prepare('SELECT id FROM users WHERE username = ? LIMIT 1');
-        $stmt->bind_param('s', $username);
+        // Cek apakah username atau email sudah dipakai
+        $stmt = $koneksi->prepare('SELECT username, email FROM users WHERE username = ? OR email = ? LIMIT 1');
+        $stmt->bind_param('ss', $username, $email);
         $stmt->execute();
-        $sudah_ada = $stmt->get_result()->num_rows > 0;
+        $duplikat = $stmt->get_result()->fetch_assoc();
         $stmt->close();
 
-        if ($sudah_ada) {
-            $error = 'Username sudah dipakai, coba username lain.';
+        if ($duplikat) {
+            $error = (strcasecmp($duplikat['username'], $username) === 0)
+                ? 'Username sudah dipakai, coba username lain.'
+                : 'Email sudah terdaftar. Login atau pakai email lain.';
         } else {
             // Simpan password dalam bentuk hash, bukan teks biasa
             $hash = password_hash($password, PASSWORD_DEFAULT);
 
             try {
-                $stmt = $koneksi->prepare('INSERT INTO users (username, password) VALUES (?, ?)');
-                $stmt->bind_param('ss', $username, $hash);
+                $stmt = $koneksi->prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)');
+                $stmt->bind_param('sss', $username, $email, $hash);
                 $stmt->execute();
                 $stmt->close();
 
@@ -70,6 +76,10 @@ include __DIR__ . '/../includes/header.php';
         <label for="username">Username</label>
         <input type="text" id="username" name="username" maxlength="30"
                value="<?= htmlspecialchars($username) ?>" autocomplete="username" required autofocus>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" maxlength="100"
+               value="<?= htmlspecialchars($email) ?>" autocomplete="email" required>
 
         <label for="password">Password</label>
         <input type="password" id="password" name="password" minlength="6"
