@@ -31,22 +31,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($password !== $konfirmasi) {
         $error = 'Konfirmasi password tidak sama dengan password.';
     } else {
-        // Cek apakah username atau email sudah dipakai
-        $stmt = $koneksi->prepare('SELECT username, email FROM users WHERE username = ? OR email = ? LIMIT 1');
-        $stmt->bind_param('ss', $username, $email);
-        $stmt->execute();
-        $duplikat = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
+        try {
+            // Cek apakah username atau email sudah dipakai
+            $stmt = $koneksi->prepare('SELECT username, email FROM users WHERE username = ? OR email = ? LIMIT 1');
+            $stmt->bind_param('ss', $username, $email);
+            $stmt->execute();
+            $duplikat = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
 
-        if ($duplikat) {
-            $error = (strcasecmp($duplikat['username'], $username) === 0)
-                ? 'Username sudah dipakai, coba username lain.'
-                : 'Email sudah terdaftar. Login atau pakai email lain.';
-        } else {
-            // Simpan password dalam bentuk hash, bukan teks biasa
-            $hash = password_hash($password, PASSWORD_DEFAULT);
+            if ($duplikat) {
+                $error = (strcasecmp($duplikat['username'], $username) === 0)
+                    ? 'Username sudah dipakai, coba username lain.'
+                    : 'Email sudah terdaftar. Login atau pakai email lain.';
+            } else {
+                // Simpan password dalam bentuk hash, bukan teks biasa
+                $hash = password_hash($password, PASSWORD_DEFAULT);
 
-            try {
                 $stmt = $koneksi->prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)');
                 $stmt->bind_param('sss', $username, $email, $hash);
                 $stmt->execute();
@@ -54,7 +54,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 header('Location: ' . BASE_URL . 'auth/login.php?pesan=registered');
                 exit;
-            } catch (mysqli_sql_exception $e) {
+            }
+        } catch (mysqli_sql_exception $e) {
+            if ($e->getCode() === 1062) {
+                // Bentrok data unik (mis. dua orang daftar bersamaan)
+                $error = 'Username atau email sudah terdaftar.';
+            } else {
+                // Detail error masuk ke log server (mis. kolom email belum ada di tabel users)
+                error_log('Register gagal: ' . $e->getMessage());
                 $error = 'Pendaftaran gagal. Coba lagi beberapa saat.';
             }
         }
