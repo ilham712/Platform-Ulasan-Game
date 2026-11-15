@@ -17,7 +17,7 @@ $sudah_login = isset($_SESSION['user_id']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($page_title) ?> | Platform Ulasan Game</title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>includes/stylelogin.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/style.css">
 </head>
 <body>
 
