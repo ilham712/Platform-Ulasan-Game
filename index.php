@@ -18,7 +18,7 @@ $stmt = $koneksi->prepare(
 );
 $stmt->bind_param('s', $kata);
 $stmt->execute();
-$stmt = $stmt->get_result();
+$hasil = $stmt->get_result();
 ?>
 
 <main class="page">
@@ -61,7 +61,7 @@ $stmt = $stmt->get_result();
             <h2>Ulasan Terbaru</h2>
 
             <form class="filter" method="GET" action="index.php#ulasan">
-                <input class="input" type="search" name="q" placeolder="Cari judul game..." value="<?= htmlspecialchars($cari)?>">
+                <input class="input" type="search" name="q" placeholder="Cari judul game..." value="<?= htmlspecialchars($cari)?>">
                 <button class="btn btn-small" type="submit">Cari</button>
             </form>
         </div>
