@@ -30,6 +30,9 @@ $sudah_login = isset($_SESSION['user_id']);
         <?php if ($sudah_login): ?>
             <a href="<?= BASE_URL ?>dashboard.php">Dashboard</a>
             <span class="nav-user">Halo, <?= htmlspecialchars($_SESSION['username']) ?></span>
+            <?php if (($_SESSION['role'] ?? '') === 'admin'): ?>
+                <span class="chip chip-alt">Admin</span>
+            <?php endif; ?>
             <?php if (!empty($_SESSION['is_demo'])): ?>
                 <span class="badge-demo">Mode demo</span>
             <?php endif; ?>

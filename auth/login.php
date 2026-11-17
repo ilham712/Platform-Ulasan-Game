@@ -67,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['user_id']  = $demo['id'];
                     $_SESSION['username'] = $demo['username'];
                     $_SESSION['is_demo']  = true;
+                    $_SESSION['role']     = 'user'; // akun demo tidak pernah jadi admin
 
                     header('Location: ' . BASE_URL . 'dashboard.php');
                     exit;
@@ -86,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             try {
                 // Prepared statement supaya aman dari SQL injection
-                $stmt = $koneksi->prepare('SELECT id, username, password FROM users WHERE username = ? LIMIT 1');
+                $stmt = $koneksi->prepare('SELECT id, username, password, role FROM users WHERE username = ? LIMIT 1');
                 $stmt->bind_param('s', $username);
                 $stmt->execute();
                 $user = $stmt->get_result()->fetch_assoc();
@@ -96,6 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     session_regenerate_id(true); // cegah session fixation
                     $_SESSION['user_id']  = $user['id'];
                     $_SESSION['username'] = $user['username'];
+                    $_SESSION['role']     = $user['role']; // 'admin' atau 'user'
 
                     header('Location: ' . BASE_URL . 'dashboard.php');
                     exit;
@@ -133,7 +135,19 @@ include __DIR__ . '/../includes/header.php';
         <label for="password">Password</label>
         <input type="password" id="password" name="password" autocomplete="current-password" required>
 
-        <button type="submit" class="btn btn-block">Login</button>
+        <button type="submit" class="btn btn-block">Login</button> <br><br>
+
+        <!-- Info akun dummy -->
+        <div class="dummy-card">
+            <h2 align=center >Akun dummy</h2>
+            <p>Password semua akun: <code>password</code></p>
+            <ul>
+                <li>admin</li>
+                <li>budi</li>
+                <li>sari</li>
+                <li>andi</li>
+            </ul>
+        </div>
 
         <?php if (DEMO_MODE): ?>
             <p class="auth-divider"><span>atau</span></p>
@@ -147,6 +161,7 @@ include __DIR__ . '/../includes/header.php';
 
         <p class="auth-note">Belum punya akun? <a href="register.php">Daftar di sini</a></p>
     </form>
+    
 </main>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

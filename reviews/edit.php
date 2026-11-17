@@ -4,17 +4,18 @@
 require_once __DIR__ . '/../includes/auth_check.php';
 
 $user_id = $_SESSION['user_id'];
+$role    = $_SESSION['role'] ?? 'user'; // 'admin' atau 'user'
 $id      = (int) ($_GET['id'] ?? 0);
 
-// Untuk Ambil ulasan yang mau diedit.
-//    "AND user_id = ?" memastikan user hanya bisa mengedit ulasan miliknya sendiri.
-$stmt = $koneksi->prepare('SELECT * FROM reviews WHERE id = ? AND user_id = ?');
-$stmt->bind_param('ii', $id, $user_id);
+// 1. Ambil ulasan yang mau diedit
+$stmt = $koneksi->prepare('SELECT * FROM reviews WHERE id = ?');
+$stmt->bind_param('i', $id);
 $stmt->execute();
 $ulasan = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-if (!$ulasan) {
+// Boleh mengedit kalau ulasan itu milik sendiri, atau kalau dia admin
+if (!$ulasan || ($ulasan['user_id'] != $user_id && $role !== 'admin')) {
     header('Location: ' . BASE_URL . 'dashboard.php?pesan=tidak_ditemukan');
     exit;
 }
@@ -76,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $koneksi->prepare(
             'UPDATE reviews
              SET judul_game = ?, genre = ?, platform = ?, rating = ?, isi_ulasan = ?, gambar = ?
-             WHERE id = ? AND user_id = ?'
+             WHERE id = ?'
         );
         $stmt->bind_param('sssissii', $judul, $genre, $platform, $rating, $isi, $nama_gambar, $id, $user_id);
         $stmt->execute();

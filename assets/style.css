@@ -119,6 +119,8 @@ a { color: var(--accent-dark); }
 .auth-page {
     flex: 1 0 auto;
     display: flex;
+    flex-direction: column;
+    gap: 24px;
     align-items: center;
     justify-content: center;
     padding: 24px 16px;
@@ -471,3 +473,18 @@ form.inline { display: inline; margin: 0; }
 .auth-divider::after { content: ""; flex: 1; border-top: 1px solid var(--line); }
 
 .demo-hint { margin: 8px 0 0; font-size: .85rem; text-align: center; color: #7a5c48; }
+
+.dummy-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 16px 20px;
+    background: var(--info-bg);
+    border: 2px dashed var(--ink);
+    border-radius: 12px;
+    color: var(--info-text);
+    font-size: .92rem;
+}
+.dummy-card h2 { margin: 0 0 6px; font-size: 1rem; }
+.dummy-card p { margin: 0 0 6px; }
+.dummy-card code { padding: 1px 6px; border-radius: 4px; background: #fff; }
+.dummy-card ul { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; padding-left: 18px; }
