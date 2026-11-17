@@ -35,8 +35,9 @@ if (!$r) {
     exit;
 }
 
-// Tombol edit/hapus hanya muncul untuk pemilik ulasan
-$pemilik = isset($_SESSION['user_id']) && $_SESSION['user_id'] == $r['user_id'];
+// 3. Tombol edit/hapus muncul untuk pemilik ulasan dan untuk admin
+$role = $_SESSION['role'] ?? 'user';
+$boleh_kelola = isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $r['user_id'] || $role === 'admin');
 
 // Pesan sukses setelah tambah/edit
 $pesan = '';
@@ -89,7 +90,7 @@ include __DIR__ . '/../includes/header.php';
             <!-- nl2br mengubah baris baru di teks menjadi <br> supaya paragraf tetap terlihat -->
             <div class="review-text"><?= nl2br(htmlspecialchars($r['isi_ulasan'])) ?></div>
 
-            <?php if ($pemilik): ?>
+            <?php if ($boleh_kelola): ?>
                 <div class="form-actions">
                     <a class="btn" href="<?= BASE_URL ?>reviews/edit.php?id=<?= $r['id'] ?>">Edit</a>
 

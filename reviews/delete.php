@@ -10,23 +10,24 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $user_id = $_SESSION['user_id'];
+$role    = $_SESSION['role'] ?? 'user'; // 'admin' atau 'user'
 $id      = (int) ($_POST['id'] ?? 0);
 
-// Cari ulasannya (hanya milik user yang sedang login) untuk tahu nama file gambarnya
-$stmt = $koneksi->prepare('SELECT gambar FROM reviews WHERE id = ? AND user_id = ?');
-$stmt->bind_param('ii', $id, $user_id);
+// 1. Cari ulasannya untuk tahu pemiliknya dan nama file gambarnya
+$stmt = $koneksi->prepare('SELECT user_id, gambar FROM reviews WHERE id = ?');
+$stmt->bind_param('i', $id);
 $stmt->execute();
 $ulasan = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-if (!$ulasan) {
+// Boleh menghapus kalau ulasan itu milik sendiri, atau kalau dia admin
+if (!$ulasan || ($ulasan['user_id'] != $user_id && $role !== 'admin')) {
     header('Location: ' . BASE_URL . 'dashboard.php?pesan=tidak_ditemukan');
     exit;
 }
 
-// Hapus datanya dari database
-$stmt = $koneksi->prepare('DELETE FROM reviews WHERE id = ? AND user_id = ?');
-$stmt->bind_param('ii', $id, $user_id);
+$stmt = $koneksi->prepare('DELETE FROM reviews WHERE id = ?');
+$stmt->bind_param('i', $id);
 $stmt->execute();
 $stmt->close();
 
