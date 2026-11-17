@@ -12,10 +12,19 @@ if (!defined('BASE_URL')) {
     define('BASE_URL', '/Platform-Ulasan-Game/');
 }
 
-$koneksi = new mysqli($host, $user, $pass, $db);
+// Fitur "Masuk sebagai Demo" di halaman login.
+// Ubah DEMO_MODE jadi false untuk mematikannya (tombol hilang dan login demo ditolak).
+if (!defined('DEMO_MODE'))     { define('DEMO_MODE', true); }
+if (!defined('DEMO_USERNAME')) { define('DEMO_USERNAME', 'demo'); }
+if (!defined('DEMO_EMAIL'))    { define('DEMO_EMAIL', 'demo@gamereview.test'); }
 
-if ($koneksi->connect_error) {
-    die('Koneksi database gagal: ' . $koneksi->connect_error);
+// Error MySQL dilempar sebagai exception (perilaku sama di semua versi PHP),
+// sehingga bisa ditangkap dengan try/catch di halaman yang memakainya.
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+try {
+    $koneksi = new mysqli($host, $user, $pass, $db);
+    $koneksi->set_charset('utf8mb4');
+} catch (mysqli_sql_exception $e) {
+    die('Koneksi database gagal: ' . $e->getMessage());
 }
-
-$koneksi->set_charset('utf8mb4');

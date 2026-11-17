@@ -24,6 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Semua kolom harus diisi.';
     } elseif (!preg_match('/^[A-Za-z0-9_]{3,30}$/', $username)) {
         $error = 'Username 3-30 karakter, hanya boleh huruf, angka, dan underscore.';
+    } elseif (strcasecmp($username, DEMO_USERNAME) === 0 || strcasecmp($email, DEMO_EMAIL) === 0) {
+        $error = 'Username atau email itu dicadangkan untuk akun demo.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 100) {
         $error = 'Format email tidak valid.';
     } elseif (strlen($password) < 6) {

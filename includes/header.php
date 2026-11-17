@@ -30,6 +30,9 @@ $sudah_login = isset($_SESSION['user_id']);
         <?php if ($sudah_login): ?>
             <a href="<?= BASE_URL ?>dashboard.php">Dashboard</a>
             <span class="nav-user">Halo, <?= htmlspecialchars($_SESSION['username']) ?></span>
+            <?php if (!empty($_SESSION['is_demo'])): ?>
+                <span class="badge-demo">Mode demo</span>
+            <?php endif; ?>
             <a class="btn btn-small btn-outline" href="<?= BASE_URL ?>auth/logout.php">Logout</a>
         <?php else: ?>
             <a href="<?= BASE_URL ?>auth/login.php">Login</a>
