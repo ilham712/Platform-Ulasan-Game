@@ -74,7 +74,7 @@ $hasil = $stmt->get_result();
                     <article class="review-card">
                         <a class="review-thumb" href="<?= BASE_URL ?>reviews/detail.php?id=<?= $r['id'] ?>">
                             <?php if($r['gambar']): ?>
-                                <img src="<?= BASE_URL ?>assets/upload/<?= htmlspecialchars($r['gambar']) ?>" alt="">
+                                <img src="<?= BASE_URL ?>assets/uploads/<?= htmlspecialchars($r['gambar']) ?>" alt="">
                             <?php else: ?>
                                 <div class="ph"><?= htmlspecialchars(mb_substr($r['judul_game'], 0, 1)) ?></div>
                             <?php endif; ?>

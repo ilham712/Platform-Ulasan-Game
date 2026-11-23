@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nama_gambar = null;
     }
 
-    if ($error === '' && $_FILES['gambar']['error'] !== UPLOAD_ERR_NO_FILE) {
+    if ($error === '' && isset($_FILES['gambar']) && $_FILES['gambar']['error'] !== UPLOAD_ERR_NO_FILE) {
         $file     = $_FILES['gambar'];
         $ekstensi = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Gambar gagal diunggah. Coba lagi.';
         } elseif (!in_array($ekstensi, ['jpg', 'jpeg', 'png', 'webp'])) {
             $error = 'Gambar harus berformat JPG, PNG, atau WebP.';
-        } elseif (getimagesize($file['tmp_name']) === false) {
+        } elseif (@getimagesize($file['tmp_name']) === false) {
             $error = 'File yang diunggah bukan gambar.';
         } elseif ($file['size'] > 2 * 1024 * 1024) {
             $error = 'Ukuran gambar maksimal 2 MB.';
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
              SET judul_game = ?, genre = ?, platform = ?, rating = ?, isi_ulasan = ?, gambar = ?
              WHERE id = ?'
         );
-        $stmt->bind_param('sssissii', $judul, $genre, $platform, $rating, $isi, $nama_gambar, $id, $user_id);
+        $stmt->bind_param('sssissi', $judul, $genre, $platform, $rating, $isi, $nama_gambar, $id);
         $stmt->execute();
         $stmt->close();
 
